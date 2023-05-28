@@ -1,5 +1,5 @@
 [build]
-  command = "npm install && npm start"
+  command = "npm install && PORT=4000 npm start"
   publish = "./"
 [[redirects]]
   from = "/*"
