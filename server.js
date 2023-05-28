@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
+const path = require('path'); // Import the path module
+require('dotenv').config();
+
 
 // Connect to MongoDB Atlas
 mongoose.connect(process.env.MONGODB_URI, {
@@ -29,6 +32,21 @@ app.use(express.json());
 // Enable CORS
 app.use(cors());
 
+// Serve static files from the build directory
+app.use(express.static(path.join(__dirname, 'src', 'build')));
+
+// GET request handler
+app.get('/data', async (req, res) => {
+  try {
+    // Retrieve all data from the database
+    const data = await Model.find({});
+    res.json(data);
+  } catch (error) {
+    console.log('Error retrieving data:', error);
+    res.status(500).json({ error: 'Error retrieving data' });
+  }
+});
+
 // POST request handler
 app.post('/data', async (req, res) => {
   try {
@@ -43,18 +61,19 @@ app.post('/data', async (req, res) => {
       port: 587,
       secure: false,
       auth: {
-        user: 'yaduk946@gmail.com',
-        pass: 'jjrpaoqeaiwgslbj'
+        user: process.env.EMAIL, 
+        pass: process.env.PWD 
       }
     });
 
-    const mailOptions = {
+  const mailOptions = {
       from: 'Yadukrishna',
       to: newData.username, // Assuming the email is passed in the request body
       subject: 'OTP Verification',
       text: `Thank you for choosing our service,
       Your OTP is: ${req.body.otp}` // Assuming the OTP is passed in the request body
     };
+
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
@@ -71,8 +90,13 @@ app.post('/data', async (req, res) => {
   }
 });
 
+// Serve the React app for any other routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src', 'build', 'index.html'));
+});
+
 // Start the server
-const port = process.env.PORT || 4000;
+const port = 4000;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
