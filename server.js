@@ -2,24 +2,27 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const nodemailer = require('nodemailer');
-const path = require('path'); // Import the path module
+const path = require('path');
 require('dotenv').config();
 
-
 // Connect to MongoDB Atlas
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('Connected to MongoDB Atlas');
-}).catch((error) => {
-  console.log('Error connecting to MongoDB Atlas:', error);
-});
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to MongoDB Atlas');
+  } catch (error) {
+    console.log('Error connecting to MongoDB Atlas:', error);
+    process.exit(1);
+  }
+};
 
 // Define the schema for the data
 const schema = new mongoose.Schema({
   username: String,
-  otp: Number
+  otp: Number,
 });
 
 // Define the model for the data
@@ -61,19 +64,17 @@ app.post('/data', async (req, res) => {
       port: 587,
       secure: false,
       auth: {
-        user: process.env.EMAIL, 
-        pass: process.env.PWD 
-      }
+        user: process.env.EMAIL,
+        pass: process.env.PWD,
+      },
     });
 
-  const mailOptions = {
+    const mailOptions = {
       from: 'Yadukrishna',
       to: newData.username, // Assuming the email is passed in the request body
       subject: 'OTP Verification',
-      text: `Thank you for choosing our service,
-      Your OTP is: ${req.body.otp}` // Assuming the OTP is passed in the request body
+      text: `Thank you for choosing our service,\nYour OTP is: ${req.body.otp}`, // Assuming the OTP is passed in the request body
     };
-
 
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
@@ -95,8 +96,15 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'src', 'build', 'index.html'));
 });
 
-// Start the server
-const port = 4000;
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+// Connect to the database before starting the server
+connectDB()
+  .then(() => {
+    // Start the server
+    const port = process.env.PORT || 4000;
+    app.listen(port, () => {
+      console.log(`Server listening on port ${port}`);
+    });
+  })
+  .catch((error) => {
+    console.log('Error connecting to the database:', error);
+  });
