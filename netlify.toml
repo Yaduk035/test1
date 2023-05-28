@@ -1,7 +1,3 @@
 [build]
-  command = "npm install && PORT=4000 npm start"
+  command = "node server.js"
   publish = "./"
-[[redirects]]
-  from = "/*"
-  to = "/server.js"
-  status = 200
