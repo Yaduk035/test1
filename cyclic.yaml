@@ -1,0 +1,6 @@
+version: 1
+name: my-app
+routes:
+  - path: /
+    port: 4000
+    target: 4000
