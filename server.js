@@ -33,7 +33,6 @@ app.use(express.json());
 app.use(cors());
 
 // Serve static files from the build directory
-app.use(express.static(path.join(__dirname, 'src', 'build')));
 
 // GET request handler
 app.get('/data', async (req, res) => {
@@ -91,9 +90,6 @@ app.post('/data', async (req, res) => {
 });
 
 // Serve the React app for any other routes
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'src', 'build', 'index.html'));
-});
 
 // Start the server
 const port = 4000;
