@@ -60,9 +60,7 @@ app.post('/data', async (req, res) => {
     await newData.save();
 
     const transporter = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 587,
-      secure: false,
+      service: 'Gmail',
       auth: {
         user: process.env.EMAIL,
         pass: process.env.PWD,
@@ -79,12 +77,12 @@ app.post('/data', async (req, res) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log('Error sending email:', error);
+        res.status(500).json({ error: 'Error sending email' });
       } else {
         console.log('Email sent:', info.response);
+        res.json(newData);
       }
     });
-
-    res.json(newData);
   } catch (error) {
     console.log('Error saving data:', error);
     res.status(500).json({ error: 'Error saving data' });
@@ -96,10 +94,9 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'src', 'build', 'index.html'));
 });
 
-// Connect to the database before starting the server
+// Connect to the database and start the server
 connectDB()
   .then(() => {
-    // Start the server
     const port = process.env.PORT || 4000;
     app.listen(port, () => {
       console.log(`Server listening on port ${port}`);
