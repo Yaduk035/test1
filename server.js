@@ -39,7 +39,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'src', 'build')));
 
 // GET request handler
-app.get('/data', async (req, res) => {
+app.get('api/data', async (req, res) => {
   try {
     // Retrieve all data from the database
     const data = await Model.find({});
@@ -51,7 +51,7 @@ app.get('/data', async (req, res) => {
 });
 
 // POST request handler
-app.post('/data', async (req, res) => {
+app.post('/api/data', async (req, res) => {
   try {
     // Create a new data instance based on the JSON payload
     const newData = new Model(req.body);
